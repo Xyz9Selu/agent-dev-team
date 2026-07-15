@@ -44,6 +44,11 @@ The default polling interval is 20 seconds. ADT accepts mentions in Issue/PR
 conversation comments, PR review bodies and inline review comments. Only users
 in `github.allowedUsers` may trigger it.
 
+For single-account integration testing only, `github.allowSelfTrigger` permits
+the configured agent user to trigger ADT manually. ADT's own replies contain a
+hidden system marker and are still ignored, preventing response loops. Keep the
+option disabled in normal multi-account operation.
+
 ## Operations
 
 ```bash

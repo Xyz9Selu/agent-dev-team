@@ -11,6 +11,7 @@ const ConfigSchema = z.object({
   github: z.object({
     agentUser: z.string().min(1),
     allowedUsers: z.array(z.string().min(1)).min(1),
+    allowSelfTrigger: z.boolean().default(false),
     pollIntervalSeconds: z.number().int().min(5).default(20),
   }),
   executor: z.object({
@@ -45,6 +46,7 @@ export function writeExampleConfig(destination = CONFIG_PATH): void {
     github: {
       agentUser: "api001endlessstudio-sketch",
       allowedUsers: ["Xyz9Selu"],
+      allowSelfTrigger: false,
       pollIntervalSeconds: 20,
     },
     executor: { kind: "cc-mm", command: "cc-mm", maxMinutes: 60 },

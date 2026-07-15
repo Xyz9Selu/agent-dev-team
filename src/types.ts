@@ -34,6 +34,7 @@ export interface AdtConfig {
   github: {
     agentUser: string;
     allowedUsers: string[];
+    allowSelfTrigger: boolean;
     pollIntervalSeconds: number;
   };
   executor: {
@@ -51,6 +52,8 @@ export interface AdtConfig {
   retentionDays: number;
   repositories: RepositoryConfig[];
 }
+
+export const ADT_SYSTEM_MARKER = "<!-- adt:system -->";
 
 export interface JobRow {
   id: number;

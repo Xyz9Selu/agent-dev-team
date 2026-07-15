@@ -15,6 +15,9 @@ sessions and logs are implementation details managed by the daemon.
 - Agent account: `api001endlessstudio-sketch`, with write access.
 - Only users in `allowedUsers` may trigger work.
 - Events authored by the agent account are always ignored.
+- For single-account integration tests, `allowSelfTrigger` may be enabled.
+  ADT-authored comments carry `<!-- adt:system -->` and remain ignored, which
+  prevents reply loops. The option is disabled by default.
 - Event IDs are persisted with a unique constraint, so polling is idempotent.
 
 ## Accepted events

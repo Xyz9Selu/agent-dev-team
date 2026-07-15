@@ -10,7 +10,7 @@ import {
   addEyesReaction, ensureStatusLabels, githubClient, itemTitle, pollEvents, postComment,
   prMerged, pullRequestInfo, setStatusLabel, threadContext,
 } from "./github.js";
-import { classifyIntent, isCancelCommand, isResumeCommand, stripMention } from "./intent.js";
+import { classifyIntent, isCancelCommand, isResumeCommand, shouldAcceptTrigger, stripMention } from "./intent.js";
 import { ruleReview } from "./security.js";
 import { branchName, ensureWorktree, removeWorktree, repositoryConfig } from "./workspace.js";
 import { CcMmExecutor } from "./executor.js";
@@ -79,8 +79,7 @@ export class Worker {
   }
 
   private async acceptEvent(event: TriggerEvent): Promise<void> {
-    const allowed = this.config.github.allowedUsers.some((user) => user.toLowerCase() === event.author.toLowerCase());
-    if (!allowed || event.author.toLowerCase() === this.config.github.agentUser.toLowerCase()) return;
+    if (!shouldAcceptTrigger(this.config, event)) return;
     const instruction = stripMention(event.body, this.config.github.agentUser);
     const mode = classifyIntent(instruction);
     const id = enqueueEvent(this.db, event, instruction, mode);
