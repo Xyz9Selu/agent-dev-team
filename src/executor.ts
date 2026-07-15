@@ -94,7 +94,7 @@ export class CcMmExecutor {
     sessionId: string,
     signal?: AbortSignal,
   ): Promise<{ result: ExecutorResult; sessionId: string }> {
-    const prompt = `Use the Superpowers subagent-driven-development skill to execute ${planPath}. Delegate independent steps to subagents, review their work, and run relevant tests. You may modify only this worktree. Do not commit, push, merge, access credentials, or create a PR; ADT handles delivery. If human judgment is required, return needs-input and stop cleanly.\n\nOriginal instruction:\n${instruction}\n\nCurrent GitHub context:\n${context.slice(-40_000)}`;
+    const prompt = `Use the Superpowers subagent-driven-development skill to execute ${planPath}. Delegate independent steps to subagents, review their work, and run relevant tests. You may modify only this worktree. Do not commit, push, merge, access credentials, or create a PR; ADT handles delivery. If human judgment is required, return needs-input and stop cleanly. In the final summary, describe only the implemented changes and validation results; do not narrate these execution restrictions or the uncommitted worktree, because ADT performs delivery after you return.\n\nOriginal instruction:\n${instruction}\n\nCurrent GitHub context:\n${context.slice(-40_000)}`;
     const envelope = await this.invoke(repository, worktree, prompt, RESULT_JSON_SCHEMA, sessionId, true, signal);
     return { result: ResultSchema.parse(envelope.structured_output ?? parseResult(envelope.result)), sessionId: envelope.session_id! };
   }
@@ -114,6 +114,8 @@ export class CcMmExecutor {
       "--print", prompt,
       "--output-format", "json",
       "--json-schema", schema,
+      "--strict-mcp-config",
+      "--mcp-config", '{"mcpServers":{}}',
       ...(tools
         ? ["--dangerously-skip-permissions"]
         : ["--tools", "", "--permission-mode", "dontAsk"]),
@@ -125,7 +127,10 @@ export class CcMmExecutor {
       signal,
     });
     if (output.timedOut) throw new Error(`Executor timed out after ${this.config.executor.maxMinutes} minutes`);
-    if (output.code !== 0) throw new Error(`Executor exited ${output.code}: ${output.stderr.slice(-2000)}`);
+    if (output.code !== 0) {
+      const detail = output.stderr.trim() || output.stdout.trim();
+      throw new Error(`Executor exited ${output.code ?? "by signal"}: ${detail.slice(-4000)}`);
+    }
     const envelope = JSON.parse(output.stdout.trim()) as ClaudeEnvelope;
     if (envelope.is_error) throw new Error(envelope.result ?? "Executor returned an error");
     envelope.session_id ??= sessionId;

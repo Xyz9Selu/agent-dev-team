@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 
 export interface ProcessResult {
   code: number | null;
@@ -34,8 +35,8 @@ export function runProcess(
       resolve({ code, stdout, stderr, timedOut });
     };
     const terminate = () => {
-      child.kill("SIGTERM");
-      forceTimer = setTimeout(() => child.kill("SIGKILL"), 10_000);
+      terminateProcessTree(child.pid, "SIGTERM");
+      forceTimer = setTimeout(() => terminateProcessTree(child.pid, "SIGKILL"), 10_000);
     };
     const abort = () => terminate();
     options.signal?.addEventListener("abort", abort, { once: true });
@@ -47,4 +48,37 @@ export function runProcess(
       ? setTimeout(() => { timedOut = true; terminate(); }, options.timeoutMs)
       : undefined;
   });
+}
+
+function terminateProcessTree(rootPid: number | undefined, signal: NodeJS.Signals): void {
+  if (!rootPid) return;
+  const parentByPid = new Map<number, number>();
+  try {
+    for (const entry of fs.readdirSync("/proc")) {
+      if (!/^\d+$/.test(entry)) continue;
+      const pid = Number(entry);
+      try {
+        const stat = fs.readFileSync(`/proc/${pid}/stat`, "utf8");
+        const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
+        parentByPid.set(pid, Number(fields[1]));
+      } catch {
+        // Process exited while /proc was being scanned.
+      }
+    }
+  } catch {
+    // Fall back to killing only the direct child on non-Linux systems.
+  }
+  const descendants: number[] = [];
+  const collect = (parent: number) => {
+    for (const [pid, ppid] of parentByPid) {
+      if (ppid !== parent) continue;
+      collect(pid);
+      descendants.push(pid);
+    }
+  };
+  collect(rootPid);
+  for (const pid of [...descendants, rootPid]) {
+    try { process.kill(pid, signal); }
+    catch { /* Process already exited. */ }
+  }
 }

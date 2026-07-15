@@ -257,7 +257,9 @@ export class Worker {
   }
 
   private async finish(job: JobRow, status: "done" | "failed", message: string): Promise<void> {
-    transition(this.db, job.id, status, job.phase, status === "failed" ? message : null);
+    // Keep the phase written by the latest workflow step. The JobRow passed to
+    // finish can be stale after planning/implementation/delivery transitions.
+    transition(this.db, job.id, status, undefined, status === "failed" ? message : null);
     await setStatusLabel(this.client, job.repo, job.number, status);
     await postComment(this.client, job.repo, job.number, `## api001 ${status === "done" ? "已完成" : "执行失败"}\n\n${message}`);
   }
