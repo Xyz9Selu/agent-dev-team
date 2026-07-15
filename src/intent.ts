@@ -13,6 +13,14 @@ export function stripMention(body: string, agentUser: string): string {
   return body.replace(new RegExp(`@${escapeRegex(agentUser)}\\b`, "gi"), " ").trim();
 }
 
+export function shouldAcceptTrigger(config: AdtConfig, event: TriggerEvent): boolean {
+  const allowed = config.github.allowedUsers.some((user) => user.toLowerCase() === event.author.toLowerCase());
+  if (!allowed) return false;
+  const fromAgent = event.author.toLowerCase() === config.github.agentUser.toLowerCase();
+  if (!fromAgent) return true;
+  return config.github.allowSelfTrigger && !event.body.includes(ADT_SYSTEM_MARKER);
+}
+
 export function classifyIntent(instruction: string): "read" | "write" {
   if (/(?:只|先).{0,4}(?:分析|检查)|不要.{0,6}(?:修改|改代码)|(?:do\s+not|don't).{0,8}(?:modify|change)|analysis\s+only/i.test(instruction)) {
     return "read";
@@ -33,3 +41,4 @@ export function isResumeCommand(instruction: string): boolean {
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+import { ADT_SYSTEM_MARKER, type AdtConfig, type TriggerEvent } from "./types.js";

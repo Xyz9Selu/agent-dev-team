@@ -17,7 +17,7 @@ function setup() {
   fs.chmodSync(command, 0o755);
   const repository: RepositoryConfig = { name: "o/r", path: worktree };
   const config: AdtConfig = {
-    github: { agentUser: "agent", allowedUsers: ["owner"], pollIntervalSeconds: 20 },
+    github: { agentUser: "agent", allowedUsers: ["owner"], allowSelfTrigger: false, pollIntervalSeconds: 20 },
     executor: { kind: "cc-mm", command, maxMinutes: 1 },
     isolation: { enabled: false, command: "bwrap", readOnlyHomePaths: [], writableHomePaths: [] },
     maxConcurrent: 2, retentionDays: 30, repositories: [repository],

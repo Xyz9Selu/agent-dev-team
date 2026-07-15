@@ -3,7 +3,7 @@ import { sandboxCommand } from "../src/sandbox.js";
 import type { AdtConfig } from "../src/types.js";
 
 const config: AdtConfig = {
-  github: { agentUser: "agent", allowedUsers: ["owner"], pollIntervalSeconds: 20 },
+  github: { agentUser: "agent", allowedUsers: ["owner"], allowSelfTrigger: false, pollIntervalSeconds: 20 },
   executor: { kind: "cc-mm", command: "cc-mm", maxMinutes: 60 },
   isolation: { enabled: true, command: "bwrap", readOnlyHomePaths: [], writableHomePaths: [] },
   maxConcurrent: 2,

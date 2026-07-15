@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { Octokit } from "@octokit/rest";
-import type { AdtConfig, JobStatus, TriggerEvent } from "./types.js";
+import { ADT_SYSTEM_MARKER, type AdtConfig, type JobStatus, type TriggerEvent } from "./types.js";
 
 const STATUS_LABELS: Record<JobStatus, { color: string; description: string }> = {
   queued: { color: "d4c5f9", description: "Agent task is queued" },
@@ -62,7 +62,15 @@ export async function setStatusLabel(
 }
 
 export async function postComment(client: Octokit, repoName: string, number: number, body: string): Promise<void> {
-  await client.rest.issues.createComment({ ...splitRepo(repoName), issue_number: number, body });
+  await client.rest.issues.createComment({
+    ...splitRepo(repoName),
+    issue_number: number,
+    body: formatAgentComment(body),
+  });
+}
+
+export function formatAgentComment(body: string): string {
+  return `${body}\n\n${ADT_SYSTEM_MARKER}`;
 }
 
 export async function addEyesReaction(client: Octokit, event: TriggerEvent): Promise<void> {

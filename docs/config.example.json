@@ -2,6 +2,7 @@
   "github": {
     "agentUser": "api001endlessstudio-sketch",
     "allowedUsers": ["Xyz9Selu"],
+    "allowSelfTrigger": false,
     "pollIntervalSeconds": 20
   },
   "executor": {

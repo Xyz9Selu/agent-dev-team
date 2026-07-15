@@ -10,7 +10,7 @@ import {
   addEyesReaction, ensureStatusLabels, githubClient, itemTitle, pollEvents, postComment,
   prMerged, pullRequestInfo, setStatusLabel, threadContext,
 } from "./github.js";
-import { classifyIntent, isCancelCommand, isResumeCommand, stripMention } from "./intent.js";
+import { classifyIntent, isCancelCommand, isResumeCommand, shouldAcceptTrigger, stripMention } from "./intent.js";
 import { ruleReview } from "./security.js";
 import { branchName, ensureWorktree, removeWorktree, repositoryConfig } from "./workspace.js";
 import { CcMmExecutor } from "./executor.js";
@@ -79,8 +79,7 @@ export class Worker {
   }
 
   private async acceptEvent(event: TriggerEvent): Promise<void> {
-    const allowed = this.config.github.allowedUsers.some((user) => user.toLowerCase() === event.author.toLowerCase());
-    if (!allowed || event.author.toLowerCase() === this.config.github.agentUser.toLowerCase()) return;
+    if (!shouldAcceptTrigger(this.config, event)) return;
     const instruction = stripMention(event.body, this.config.github.agentUser);
     const mode = classifyIntent(instruction);
     const id = enqueueEvent(this.db, event, instruction, mode);
@@ -258,7 +257,9 @@ export class Worker {
   }
 
   private async finish(job: JobRow, status: "done" | "failed", message: string): Promise<void> {
-    transition(this.db, job.id, status, job.phase, status === "failed" ? message : null);
+    // Keep the phase written by the latest workflow step. The JobRow passed to
+    // finish can be stale after planning/implementation/delivery transitions.
+    transition(this.db, job.id, status, undefined, status === "failed" ? message : null);
     await setStatusLabel(this.client, job.repo, job.number, status);
     await postComment(this.client, job.repo, job.number, `## api001 ${status === "done" ? "已完成" : "执行失败"}\n\n${message}`);
   }
