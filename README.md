@@ -60,3 +60,24 @@ GitHub shows the same lifecycle through `agent:queued`, `agent:running`,
 `agent:needs-input`, `agent:done`, `agent:failed` and `agent:cancelled` labels.
 
 See [docs/design.md](docs/design.md) for the full behavior and safety model.
+
+## Ubuntu 24.04 Bubblewrap note
+
+Ubuntu 24.04 restricts unprivileged user namespaces through AppArmor. Installing
+`bubblewrap` alone may therefore leave `bwrap` failing with `setting up uid map:
+Permission denied`. Keep the global restriction enabled and install/enable the
+distribution's dedicated Bubblewrap profile instead:
+
+```bash
+sudo apt update
+sudo apt install apparmor-profiles
+sudo ln -s /usr/share/apparmor/extra-profiles/bwrap-userns-restrict \
+  /etc/apparmor.d/bwrap-userns-restrict
+sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
+adt doctor
+```
+
+If the link already exists, skip the `ln` command. See Ubuntu's
+[AppArmor documentation](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/)
+and the upstream
+[Bubblewrap restriction profile](https://gitlab.com/apparmor/apparmor/-/blob/master/profiles/apparmor/profiles/extras/bwrap-userns-restrict).

@@ -60,7 +60,19 @@ program.command("doctor")
     check(login.toLowerCase() === config.github.agentUser.toLowerCase(),
       `GitHub login: ${login} (expected ${config.github.agentUser})`);
     check(commandExists(config.executor.command), `Executor: ${config.executor.command}`);
-    if (config.isolation.enabled) check(commandExists(config.isolation.command), `Sandbox: ${config.isolation.command}`);
+    if (config.isolation.enabled) {
+      const installed = commandExists(config.isolation.command);
+      check(installed, `Sandbox installed: ${config.isolation.command}`);
+      if (installed) {
+        const probe = spawnSync(config.isolation.command,
+          ["--ro-bind", "/", "/", "--proc", "/proc", "--dev", "/dev", "--", "/usr/bin/true"],
+          { encoding: "utf8" });
+        check(probe.status === 0,
+          probe.status === 0
+            ? "Sandbox can create a user namespace"
+            : `Sandbox cannot create a user namespace: ${(probe.stderr || "unknown error").trim()}`);
+      }
+    }
     for (const repository of config.repositories) {
       const probe = spawnSync("git", ["-C", repository.path, "rev-parse", "--is-inside-work-tree"], { encoding: "utf8" });
       check(probe.status === 0, `Repository ${repository.name}: ${repository.path}`);
