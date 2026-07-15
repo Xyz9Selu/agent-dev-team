@@ -10,6 +10,7 @@ import { authenticatedUser, githubClient, postComment, threadContext } from "./g
 import { branchName, ensureWorktree, removeWorktree, repositoryConfig } from "./workspace.js";
 import { sandboxCommand } from "./sandbox.js";
 import { CcMmExecutor } from "./executor.js";
+import { colorEnabled, renderStatusTable } from "./statusFormat.js";
 
 const program = new Command();
 program.name("adt").description("Mention-driven GitHub development assistant").version("0.2.0");
@@ -91,12 +92,12 @@ program.command("status")
       const jobs = allJobs(db, 50);
       db.close();
       if (watch) process.stdout.write("\x1Bc");
-      if (jobs.length === 0) console.log("No ADT tasks.");
-      else {
-        console.log("ID".padEnd(8), "STATUS".padEnd(13), "PHASE".padEnd(14), "EXECUTOR".padEnd(10), "THREAD");
-        for (const job of jobs) {
-          console.log(`A-${job.id}`.padEnd(8), job.status.padEnd(13), job.phase.padEnd(14), config.executor.kind.padEnd(10), `${job.repo}#${job.number}`);
-        }
+      const colorOn = colorEnabled({
+        isTTY: Boolean(process.stdout.isTTY),
+        noColor: process.env.NO_COLOR !== undefined,
+      });
+      for (const line of renderStatusTable(jobs, config.executor.kind, colorOn)) {
+        console.log(line);
       }
       if (watch) await sleep(2000);
     } while (watch);
