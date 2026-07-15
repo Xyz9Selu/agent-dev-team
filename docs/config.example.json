@@ -1,6 +1,6 @@
 {
   "github": {
-    "agentUser": "api001endlessstudio-sketch",
+    "agentUser": "ESApi001",
     "allowedUsers": ["Xyz9Selu"],
     "allowSelfTrigger": false,
     "pollIntervalSeconds": 20

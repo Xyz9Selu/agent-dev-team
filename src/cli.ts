@@ -152,7 +152,7 @@ program.command("grill <ref>")
     const repository = repositoryConfig(config.repositories, repo);
     const db = openStore();
     const previous = findWorkspace(db, repo, number);
-    const branch = previous?.branch ?? branchName(number, "grill");
+    const branch = previous?.branch ?? branchName(number, "grill", config.github.agentUser);
     const worktree = previous?.worktree_path ?? ensureWorktree(repository, number, branch, false);
     db.close();
     const client = githubClient();
@@ -170,7 +170,7 @@ program.command("grill <ref>")
     const body = summary.result.status === "needs-input"
       ? [summary.result.summary, ...summary.result.questions.map((question) => `- ${question}`)].join("\n")
       : summary.result.summary;
-    await postComment(client, repo, number, `## api001 Grill 总结\n\n${body}`);
+    await postComment(client, repo, number, `## ${config.github.agentUser} Grill 总结\n\n${body}`);
     console.log("Grill summary posted to GitHub.");
   });
 

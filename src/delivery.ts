@@ -25,11 +25,12 @@ export async function deliver(
   title: string,
   summary: string,
   tests: string[],
+  agentUser: string,
   existingPrNumber?: number | null,
 ): Promise<{ prNumber: number; url: string; commit: string }> {
   if (!hasChanges(worktree)) throw new Error("Executor completed without producing changes");
   git(worktree, ["add", "-A"]);
-  git(worktree, ["-c", "user.name=api001endlessstudio-sketch", "-c", "user.email=api001endlessstudio-sketch@users.noreply.github.com", "commit", "-m", `Implement #${number}: ${title.slice(0, 60)}`]);
+  git(worktree, ["-c", `user.name=${agentUser}`, "-c", `user.email=${agentUser}@users.noreply.github.com`, "commit", "-m", `Implement #${number}: ${title.slice(0, 60)}`]);
   const commit = git(worktree, ["rev-parse", "HEAD"]);
   git(worktree, ["push", "-u", "origin", branch]);
 
@@ -45,7 +46,7 @@ export async function deliver(
     "## Validation",
     ...(tests.length > 0 ? tests.map((test) => `- ${test}`) : ["- No test result was reported"]),
     "",
-    "_Created by ADT as api001endlessstudio-sketch._",
+    `_Created by ADT as ${agentUser}._`,
   ].join("\n");
   const pr = await createDraftPullRequest(client, repository.name, branch, defaultBranch(repository), title, body);
   return { prNumber: pr.number, url: pr.url, commit };
