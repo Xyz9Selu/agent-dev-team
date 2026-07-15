@@ -1,0 +1,30 @@
+{
+  "name": "agent-dev-team",
+  "version": "0.2.0",
+  "description": "A mention-driven GitHub development assistant",
+  "type": "module",
+  "bin": {
+    "adt": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run build && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.1.1",
+    "better-sqlite3": "^11.10.0",
+    "commander": "^12.1.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.15.30",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.env
+.tmux.conf
+.claude/
+*.log
+*.db
+*.db-shm
+*.db-wal

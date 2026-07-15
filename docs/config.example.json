@@ -1,0 +1,31 @@
+{
+  "github": {
+    "agentUser": "api001endlessstudio-sketch",
+    "allowedUsers": ["Xyz9Selu"],
+    "pollIntervalSeconds": 20
+  },
+  "executor": {
+    "kind": "cc-mm",
+    "command": "/home/xyz/.local/bin/cc-mm",
+    "maxMinutes": 60
+  },
+  "isolation": {
+    "enabled": true,
+    "command": "bwrap",
+    "readOnlyHomePaths": [
+      "/home/xyz/.local",
+      "/home/xyz/.npm-global"
+    ],
+    "writableHomePaths": [
+      "/home/xyz/.claude"
+    ]
+  },
+  "maxConcurrent": 2,
+  "retentionDays": 30,
+  "repositories": [
+    {
+      "name": "Xyz9Selu/example",
+      "path": "/home/xyz/projects/example"
+    }
+  ]
+}
