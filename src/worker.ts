@@ -131,7 +131,7 @@ export class Worker {
     try {
       transition(this.db, job.id, "running", job.phase);
       await setStatusLabel(this.client, job.repo, job.number, "running");
-      await postComment(this.client, job.repo, job.number, `api001 已开始处理，任务 ID：A-${job.id}。`);
+      await postComment(this.client, job.repo, job.number, `${this.config.github.agentUser} 已开始处理，任务 ID：A-${job.id}。`);
 
       const repository = repositoryConfig(this.config.repositories, job.repo);
       const previous = findWorkspace(this.db, job.repo, job.number);
@@ -144,7 +144,7 @@ export class Worker {
           branch = pull.branch;
           worktree = ensureWorktree(repository, job.number, branch, true);
         } else {
-          branch = branchName(job.number, job.instruction);
+          branch = branchName(job.number, job.instruction, this.config.github.agentUser);
           worktree = ensureWorktree(repository, job.number, branch, false);
         }
       }
@@ -212,7 +212,7 @@ export class Worker {
       const title = await itemTitle(this.client, job.repo, job.number);
       const delivered = await deliver(
         this.client, repository, worktree, branch, job.number, title,
-        implementation.result.summary, implementation.result.tests ?? [], prNumber,
+        implementation.result.summary, implementation.result.tests ?? [], this.config.github.agentUser, prNumber,
       );
       updateJob(this.db, job.id, { pr_number: delivered.prNumber });
       await this.finish(job, "done",
@@ -253,7 +253,7 @@ export class Worker {
     transition(this.db, job.id, "needs-input", job.phase);
     await setStatusLabel(this.client, job.repo, job.number, "needs-input");
     await postComment(this.client, job.repo, job.number,
-      [`## api001 需要你的判断`, "", summary, "", ...questions.map((question, index) => `${index + 1}. ${question}`), "", `请回复并再次 @${this.config.github.agentUser}。`].join("\n"));
+      [`## ${this.config.github.agentUser} 需要你的判断`, "", summary, "", ...questions.map((question, index) => `${index + 1}. ${question}`), "", `请回复并再次 @${this.config.github.agentUser}。`].join("\n"));
   }
 
   private async finish(job: JobRow, status: "done" | "failed", message: string): Promise<void> {
@@ -261,7 +261,7 @@ export class Worker {
     // finish can be stale after planning/implementation/delivery transitions.
     transition(this.db, job.id, status, undefined, status === "failed" ? message : null);
     await setStatusLabel(this.client, job.repo, job.number, status);
-    await postComment(this.client, job.repo, job.number, `## api001 ${status === "done" ? "已完成" : "执行失败"}\n\n${message}`);
+    await postComment(this.client, job.repo, job.number, `## ${this.config.github.agentUser} ${status === "done" ? "已完成" : "执行失败"}\n\n${message}`);
   }
 
   private async cleanupMerged(): Promise<void> {

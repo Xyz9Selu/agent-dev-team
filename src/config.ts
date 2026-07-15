@@ -44,7 +44,7 @@ export function writeExampleConfig(destination = CONFIG_PATH): void {
   fs.mkdirSync(path.dirname(destination), { recursive: true, mode: 0o700 });
   const example: AdtConfig = {
     github: {
-      agentUser: "api001endlessstudio-sketch",
+      agentUser: "ESApi001",
       allowedUsers: ["Xyz9Selu"],
       allowSelfTrigger: false,
       pollIntervalSeconds: 20,

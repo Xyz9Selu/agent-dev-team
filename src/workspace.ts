@@ -19,9 +19,10 @@ export function defaultBranch(repository: RepositoryConfig): string {
   }
 }
 
-export function branchName(number: number, instruction: string): string {
+export function branchName(number: number, instruction: string, agentUser = "adt"): string {
   const slug = instruction.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 36) || "task";
-  return `api001/issue-${number}-${slug}`;
+  const namespace = agentUser.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, "") || "adt";
+  return `${namespace}/issue-${number}-${slug}`;
 }
 
 export function ensureWorktree(

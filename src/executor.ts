@@ -62,7 +62,7 @@ export class CcMmExecutor {
     sessionId?: string | null,
     signal?: AbortSignal,
   ): Promise<{ result: ExecutorResult; sessionId: string }> {
-    const prompt = `Act as the GitHub development assistant api001. This is read-only work: do not modify files, commit, push, or create a PR.\nAnswer the user's instruction using the repository and thread context. If they requested grill, ask 3-5 high-value questions in one turn. If human judgment is required, return needs-input.\n\nInstruction:\n${instruction}\n\nGitHub context:\n${context.slice(-40_000)}`;
+    const prompt = `Act as the GitHub development assistant ${this.config.github.agentUser}. This is read-only work: do not modify files, commit, push, or create a PR.\nAnswer the user's instruction using the repository and thread context. If they requested grill, ask 3-5 high-value questions in one turn. If human judgment is required, return needs-input.\n\nInstruction:\n${instruction}\n\nGitHub context:\n${context.slice(-40_000)}`;
     const envelope = await this.invoke(repository, worktree, prompt, RESULT_JSON_SCHEMA, sessionId, false, signal);
     return { result: ResultSchema.parse(envelope.structured_output ?? parseResult(envelope.result)), sessionId: envelope.session_id! };
   }

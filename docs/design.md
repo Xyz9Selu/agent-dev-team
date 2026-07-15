@@ -12,7 +12,7 @@ sessions and logs are implementation details managed by the daemon.
 ## Identities and authorization
 
 - Repository owner: `Xyz9Selu`.
-- Agent account: `api001endlessstudio-sketch`, with write access.
+- Agent account: `ESApi001`, with write access.
 - Only users in `allowedUsers` may trigger work.
 - Events authored by the agent account are always ignored.
 - For single-account integration tests, `allowSelfTrigger` may be enabled.

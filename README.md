@@ -5,10 +5,10 @@ workflow; the agent acts only when an allow-listed user mentions its GitHub
 account in an Issue or Pull Request.
 
 ```text
-@api001endlessstudio-sketch analyze this failure; do not change code
-@api001endlessstudio-sketch grill me before implementation
-@api001endlessstudio-sketch start implementation
-@api001endlessstudio-sketch address the review feedback
+@ESApi001 analyze this failure; do not change code
+@ESApi001 grill me before implementation
+@ESApi001 start implementation
+@ESApi001 address the review feedback
 ```
 
 “Start implementation” runs the complete workflow: write a Superpowers plan,

@@ -17,7 +17,7 @@ describe("intent", () => {
   });
 
   it("strips the configured mention without assuming a short alias", () => {
-    expect(stripMention("@api001endlessstudio-sketch 分析一下", "api001endlessstudio-sketch"))
+    expect(stripMention("@ESApi001 分析一下", "ESApi001"))
       .toBe("分析一下");
   });
 
