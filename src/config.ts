@@ -51,7 +51,11 @@ export function writeExampleConfig(destination = CONFIG_PATH): void {
     isolation: {
       enabled: true,
       command: "bwrap",
-      readOnlyHomePaths: [path.join(os.homedir(), ".local"), path.join(os.homedir(), ".npm-global")],
+      readOnlyHomePaths: [
+        path.join(os.homedir(), ".local"),
+        path.join(os.homedir(), ".npm-global"),
+        path.join(os.homedir(), ".claude.json"),
+      ],
       writableHomePaths: [path.join(os.homedir(), ".claude")],
     },
     maxConcurrent: 2,

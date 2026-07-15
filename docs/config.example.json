@@ -14,7 +14,8 @@
     "command": "bwrap",
     "readOnlyHomePaths": [
       "/home/xyz/.local",
-      "/home/xyz/.npm-global"
+      "/home/xyz/.npm-global",
+      "/home/xyz/.claude.json"
     ],
     "writableHomePaths": [
       "/home/xyz/.claude"
